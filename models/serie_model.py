@@ -1,20 +1,17 @@
-from pydantic import BaseModel, Field
-from enum import Enum
+from sqlalchemy import Column, String, Integer, Enum as SQLEnum
+import enum
+from database import Base
 
-class EstadoSerie(str, Enum):
+class EstadoSerie(str, enum.Enum):
     POR_VER = "Por ver"
     VIENDO = "Viendo"
     TERMINADA = "Terminada"
 
-class SerieBase(BaseModel):
-    titulo: str = Field(..., min_length=1, description="Título de la serie")
-    genero: str = Field(..., min_length=1, description="Género de la serie")
-    temporadas_totales: int = Field(..., gt=0, description="Número total de temporadas")
+class SerieModel(Base):
+    __tablename__ = "series"
 
-class SerieCreate(SerieBase):
-    pass
-
-class Serie(SerieBase):
-    id: str
-    temporadas_vistas: int = Field(0, ge=0, description="Temporadas ya vistas")
-    estado: EstadoSerie = EstadoSerie.POR_VER
+    id = Column(String(36), primary_key=True, index=True)
+    titulo = Column(String(255), nullable=False)
+    genero = Column(String(100), nullable=False)
+    temporadas_totales = Column(Integer, nullable=False)
+    temporadas_vistas = Column(Integer, default=0)
